@@ -24,3 +24,16 @@ myApp.listen(port, () => {
 })
 
 ```
+
+## RESTful API
+
+- REST: Representational State Transfer
+  Es una conveccion que se refiere a servicios web por protocolo HTTP
+
+- Metodos:
+
+Get: Obtener
+Put: Modificar/Actualizar
+Patch: Modificar/Actualizar
+Post: Crear
+Delete: Eliminar
