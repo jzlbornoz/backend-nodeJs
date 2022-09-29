@@ -32,6 +32,7 @@ myApp.listen(port, () => {
 
 - Metodos:
 
+
 Get: Obtener
 Put: Modificar/Actualizar
 Patch: Modificar/Actualizar
