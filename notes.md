@@ -32,9 +32,32 @@ myApp.listen(port, () => {
 
 - Metodos:
 
-
 Get: Obtener
 Put: Modificar/Actualizar
 Patch: Modificar/Actualizar
 Post: Crear
 Delete: Eliminar
+
+## instalacion de Faker
+
+- `npm i @faker-js/faker`
+- ./index.js
+
+```
+const { faker } = require('@faker-js/faker');
+
+myApp.get('/products', (req, res) => {
+  const products = [];
+  const { size } = req.query;
+  const limit = parseInt(size) || 5;
+  for (let i = 0; i < limit; i++) {
+    products.push({
+      name: faker.commerce.productName(),
+      price: parseInt(faker.commerce.price(), 10),
+      imaga: faker.image.imageUrl(),
+      id: i,
+    })
+  }
+  res.json(products);
+});
+```
