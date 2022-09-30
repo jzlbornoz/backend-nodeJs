@@ -109,14 +109,17 @@ module.exports = router;
 - /routes/index.js
 
 ```
+const express = require('express');
 const productsRouter = require('./products.router');
-const userRouter = require('./user.router');
+const userRouter = require('./users.router');
 const categoriesRouter = require('./categories.router');
 
 function routerApi(app) {
-  app.use('/products', productsRouter);
-  app.use('/user', userRouter);
-  app.use('/categories', categoriesRouter);
+  const router = express.Router();
+  app.use('api/v1', router);
+  router.use('/products', productsRouter);
+  router.use('/user', userRouter);
+  router.use('/categories', categoriesRouter);
 }
 module.exports = routerApi;
 
@@ -144,4 +147,21 @@ myApp.listen(port, () => {
 })
 
 
+```
+
+## POST Method
+
+- Se crea el metedo que atiende al llamado POST
+- ./routes/products.router.js
+
+```
+// POST
+
+router.post('/', (req, res) => {
+  const body = req.body;
+  res.json({
+    message: 'created',
+    data: body
+  })
+})
 ```
