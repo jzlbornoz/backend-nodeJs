@@ -165,3 +165,38 @@ router.post('/', (req, res) => {
   })
 })
 ```
+
+## UPDATE Methods (Put and Patch)
+
+- Se crean los metodos que atienden a los llamados PUT y PATCH
+- ./routes/products.router.js
+
+```
+// Patch
+router.patch('/:id', (req, res) => {
+  const {id} = req.params;
+  const body = req.body;
+  res.json({
+    message: 'update parcial',
+    data: body,
+    id,
+  })
+})
+
+// PUT
+router.put('/:id', (req, res) => {
+  const {id} = req.params;
+  const body = req.body;
+  res.json({
+    message: 'update',
+    data: body,
+    id,
+  })
+})
+
+
+```
+
+## Delete Method
+
+-
