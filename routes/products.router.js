@@ -1,31 +1,24 @@
 const express = require('express');
-const { faker } = require('@faker-js/faker');
+const ProductsServices = require('../services/products.services')
 
 const router = express.Router();
+const service = new ProductsServices();
 
 router.get('/', (req, res) => {
-  const products = [];
-  const { size } = req.query;
-  const limit = parseInt(size) || 5;
-  for (let i = 0; i < limit; i++) {
-    products.push({
-      name: faker.commerce.productName(),
-      price: parseInt(faker.commerce.price(), 10),
-      imaga: faker.image.imageUrl(),
-      id: i,
-    })
-  }
+  const products = service.find();
   res.status(200).json(products);
 });
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  res.status(200).json({
-    name: faker.commerce.productName(),
-    price: parseInt(faker.commerce.price(), 10),
-    imaga: faker.image.imageUrl(),
-    id,
-  })
+  const product = service.findProduct(id);
+  if (product) {
+    res.status(200).json(product)
+  } else {
+    res.status(404).json({
+      message: "Not Found"
+    })
+  }
 })
 
 // POST
@@ -40,7 +33,7 @@ router.post('/', (req, res) => {
 
 // Patch
 router.patch('/:id', (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const body = req.body;
   res.json({
     message: 'update parcial',
@@ -51,7 +44,7 @@ router.patch('/:id', (req, res) => {
 
 // PUT
 router.put('/:id', (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const body = req.body;
   res.json({
     message: 'update',
@@ -63,7 +56,7 @@ router.put('/:id', (req, res) => {
 // DELETE
 
 router.delete('/:id', (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   res.json({
     message: `DELETED: ${id}`,
     id,

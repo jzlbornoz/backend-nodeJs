@@ -195,8 +195,65 @@ router.put('/:id', (req, res) => {
 })
 
 
+// DELETE
+
+router.delete('/:id', (req, res) => {
+  const {id} = req.params;
+  res.json({
+    message: `DELETED: ${id}`,
+    id,
+  })
+})
+
 ```
 
-## Delete Method
+## Clean Architecture
 
--
+- Esta arquitectura se defince por capas:
+
+  - Capa 1 (Entidades): En esta capa se encuentras las entidades base del negocio o sistema.
+  - Capa 2 (Casos de Uso): Se encuentra todo lo relacionado a los servicios o la logica del negocio o sistema.
+  - Capa 3 (Controladores): Por lo general es donde se encuentra el routing.
+  - Capa 4 (Interfaz): Se encuentra la web, UI y DB.
+
+- Se crea el directorio 'services' y el servicio de productos 'products.services.js'.
+- Se extrae la logica del router y se agrega en el services.
+- services/products.services.js:
+
+```
+const { faker } = require('@faker-js/faker');
+
+class ProductsServices {
+  constructor() {
+    this.products = [];
+    this.generate();
+  }
+
+  generate() {
+    const limit = 50;
+    for (let i = 0; i < limit; i++) {
+      this.products.push({
+        name: faker.commerce.productName(),
+        price: parseInt(faker.commerce.price(), 10),
+        imaga: faker.image.imageUrl(),
+        id: faker.datatype.uuid(),
+      })
+    }
+  }
+  create() { }
+
+  find() {
+    return this.products
+  }
+
+  findProduct(id) {
+    return this.products.find(item => item.id === id);
+  }
+
+  update() { }
+  delete() { }
+}
+
+module.exports = ProductsServices;
+
+```
