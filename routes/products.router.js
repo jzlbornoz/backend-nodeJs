@@ -25,21 +25,23 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   const body = req.body;
-  res.json({
-    message: 'created',
-    data: body
-  })
+  const newProduct = service.create(body);
+  if (newProduct) {
+    res.status(201).json(newProduct);
+  } else {
+    res.status(404).json({
+      message: "Fatal error"
+    })
+  }
+
 })
 
 // Patch
 router.patch('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
-  res.json({
-    message: 'update parcial',
-    data: body,
-    id,
-  })
+  const product = service.update(id, body);
+  res.status(200).json(product);
 })
 
 // PUT
@@ -57,10 +59,8 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
-  res.json({
-    message: `DELETED: ${id}`,
-    id,
-  })
+  const product = service.delete(id);
+  res.status(200).json(product);
 })
 
 module.exports = router;
