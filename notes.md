@@ -257,3 +257,8 @@ class ProductsServices {
 module.exports = ProductsServices;
 
 ```
+
+## Async Await and Error capture
+- La gran mayoria de los servicios de trabajan de manera asincrona. 
+- Se agregan el async a todos los servicios que no retornen una promesa.
+- Los llamados del router ahora se haran de manera asincrona.
