@@ -11,15 +11,19 @@ router.get('/', async (req, res) => {
   res.status(200).json(products);
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const product = await service.findProduct(id);
-  if (product) {
-    res.status(200).json(product)
-  } else {
-    res.status(404).json({
-      message: "Not Found"
-    })
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await service.findProduct(id);
+    if (product) {
+      res.status(200).json(product)
+    } else {
+      res.status(404).json({
+        message: "Not Found"
+      })
+    }
+  } catch (error) {
+    next(error);
   }
 })
 

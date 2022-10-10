@@ -265,6 +265,7 @@ module.exports = ProductsServices;
 - Los llamados del router ahora se haran de manera asincrona.
 
 - routes/products.router.js
+
 ```
 const express = require('express');
 const ProductsServices = require('../services/products.services')
@@ -353,6 +354,7 @@ module.exports = router;
 ```
 
 - /services/products.services.js
+
 ```
 const { faker } = require('@faker-js/faker');
 
@@ -419,5 +421,28 @@ class ProductsServices {
 }
 
 module.exports = ProductsServices;
+
+```
+
+## Middlewares
+
+- Un middleware es un bloque de código que se ejecuta entre la petición que hace el usuario (request) hasta que la petición llega al servidor.
+- Se crea un middleware global, que se encargara en formatear el error de una forma adecuada para el cliente.
+- /middlewares/error.handler.js
+
+```
+function logErrors(err, req, res, next) {
+  console.error(err);
+  next(err);
+}
+
+function errorHandler(err, req, res, next) {
+  res.status(500).json({
+    message: err.message,
+    stack: err.stack
+  })
+}
+
+module.exports = { logErrors, errorHandler };
 
 ```

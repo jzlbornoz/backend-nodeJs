@@ -30,11 +30,12 @@ class ProductsServices {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve((this.products))
-      }, 5000)
+      }, 3000)
     })
   }
 
   async findProduct(id) {
+    const app = this.total();
     return this.products.find(item => item.id === id);
   }
 
