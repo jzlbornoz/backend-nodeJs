@@ -446,3 +446,31 @@ function errorHandler(err, req, res, next) {
 module.exports = { logErrors, errorHandler };
 
 ```
+
+- Se agrega al index del proyecto:
+
+```
+
+myApp.use(logErrors);
+myApp.use(boomHandler);
+myApp.use(errorHandler);
+```
+
+## Manejo de Errores con Boom
+
+- Nos facilita el manejo de errores respetando los status codes.
+- `npm i @hapi/boom`.
+- Se crea el middleware para los errores de boom.
+- /middlewares/error.handler.js
+
+```
+
+function boomHandler(err, req, res, next) {
+  if (err.isBoom) {
+    const { output } = err;
+    res.status(output.statusCode).json(output.payload);
+  }
+  next(err);
+}
+
+```
