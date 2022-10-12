@@ -474,3 +474,44 @@ function boomHandler(err, req, res, next) {
 }
 
 ```
+
+## Validacion de Datos
+
+- Para al validacion se utilizara al herramienta Joi.
+- `npm i joi`.
+- Se crea el directorio donde van a estar los eschemas de validacion o data transfer object (dto).
+- Se crea las validaciones de cada uno de los datos que se vana recibir, para posteriormente consumirlos en cada uno de los objetos Joi:
+- /schemas/product.schema.js
+
+```
+const Joi = require('joi');
+
+const id = Joi.string().uuid();
+const name = Joi.string().alphanum().min(3).max(20);
+const price = Joi.number().integer().min(1).max(40000);
+
+const createProductSchema = Joi.object({
+  name: name.required(),
+  price: price.required()
+})
+
+const updateProductSchema = Joi.object({
+  name: name,
+  price: price,
+})
+
+const getProductSchema = Joi.object({
+  id: id.required()
+})
+
+module.exports = { createProductSchema , updateProductSchema , getProductSchema}
+
+
+```
+
+- Se creara un middleware dinamico con un clousure de Js que recibira los schemas:
+- middlewares/validator.handler.js
+
+```
+
+```
