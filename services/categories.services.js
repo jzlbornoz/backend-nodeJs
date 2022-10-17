@@ -3,7 +3,8 @@ const boom = require('@hapi/boom');
 
 class CategoriesServices {
   constructor() {
-    (this.categories = []), this.generate();
+    this.categories = [];
+    this.generate();
   }
 
   generate() {
