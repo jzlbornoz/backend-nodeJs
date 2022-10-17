@@ -1,49 +1,60 @@
 const express = require('express');
 const CategoriesServices = require('../services/categories.services');
 const router = express.Router();
+const {
+  createCategorieSchema,
+  getCategorieSchema,
+} = require('../schemas/categories.schema');
+const validatorHandler = require('../middlewares/validator.handler');
 
 const service = new CategoriesServices();
 
+
+// Get categories
 router.get('/', async (req, res) => {
   const categories = await service.find();
   res.json(categories);
 });
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  const categorie = await service.findCategorie(id);
-  if (categorie) {
-    res.status(200).json(categorie)
-  } else {
-    res.status(404).json({
-      message: `Not Found: ${id}`
-    })
+// Get categorie by id
+router.get(
+  '/:id',
+  validatorHandler(getCategorieSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const categorie = await service.findCategorie(id);
+      res.status(200).json(categorie);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
-
-router.post('/', async (req, res) => {
-  const body = req.body;
-  const newCategorie = await service.create(body);
-  if (newCategorie) {
-    res.status(201).json(newCategorie);
-  } else {
-    res.status(404).json({
-      message: "Fatal error"
-    })
+// Create Category
+router.post(
+  '/',
+  validatorHandler(createCategorieSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const newCategorie = await service.create(body);
+      res.status(201).json(newCategorie);
+    } catch (error) {
+      next(error);
+    }
   }
-})
+);
 
-router.delete('/:id', async (req, res) => {
+// Delete categorie by Id
+router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const categorie = await service.delete(id);
-    res.status(200).json(categorie)
+    res.status(200).json(categorie);
   } catch (error) {
-    res.status(404).json({
-      message: error.message
-    })
+    next(error);
   }
-})
+});
 
 module.exports = router;

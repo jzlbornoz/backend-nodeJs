@@ -40,17 +40,14 @@ router.get('/:id',
 
 router.post('/',
   validatorHandler(createProductSchema, 'body'),
-  async (req, res) => {
-    const body = req.body;
-    const newProduct = await service.create(body);
-    if (newProduct) {
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const newProduct = await service.create(body);
       res.status(201).json(newProduct);
-    } else {
-      res.status(404).json({
-        message: "Fatal error"
-      })
+    } catch (error) {
+      next(error)
     }
-
   })
 
 // Patch
@@ -82,15 +79,13 @@ router.put('/:id', async (req, res, next) => {
 
 // DELETE
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await service.delete(id);
     res.status(200).json(product);
   } catch (error) {
-    res.status(404).json({
-      message: error.message
-    })
+    next(error);
   }
 })
 
