@@ -635,3 +635,29 @@ router.delete('/:id', async (req, res) => {
 
 module.exports = router;
 ```
+## Consideraciones para el envio a Produccion
+
+- Cors: Evaluacion de acceso a quienes hacen las solicitudes.
+- Https: La api debe estar desplegada en un servidor https ya que es mas seguro.
+- Proceso de Build: Se debera correr antes de produccion.
+- Logs: A produccion no se debe enviar los logs.
+- Seguridad (Helmet): Es esencial.
+- Testin: Seria ideal correr pruebas unitarias.
+
+## Integracion de Cors
+- `npm i cors`
+- Se agrega al index.js con la siguiente logica, para permitiro que solo los que esten en la whiteList hagan el llamado:
+-/index.js 
+```
+const whiteList = ['http://localhost:3002', 'http://127.0.0.1:5500'];
+const options = {
+  origin: (origin, callback) => {
+    if (whiteList.includes(origin)) {
+      callback(null , true);
+    } else {
+     callback(new Error("No permitido") )
+    }
+  }
+}
+myApp.use(cors(options));
+```
