@@ -635,6 +635,7 @@ router.delete('/:id', async (req, res) => {
 
 module.exports = router;
 ```
+
 ## Consideraciones para el envio a Produccion
 
 - Cors: Evaluacion de acceso a quienes hacen las solicitudes.
@@ -645,14 +646,16 @@ module.exports = router;
 - Testin: Seria ideal correr pruebas unitarias.
 
 ## Integracion de Cors
+
 - `npm i cors`
 - Se agrega al index.js con la siguiente logica, para permitiro que solo los que esten en la whiteList hagan el llamado:
--/index.js 
+  -/index.js
+
 ```
 const whiteList = ['http://localhost:3002', 'http://127.0.0.1:5500'];
 const options = {
   origin: (origin, callback) => {
-    if (whiteList.includes(origin)) {
+    if (whiteList.includes(origin) || !origin) {
       callback(null , true);
     } else {
      callback(new Error("No permitido") )
@@ -660,4 +663,38 @@ const options = {
   }
 }
 myApp.use(cors(options));
+```
+
+## Deployment Heroku
+
+- Intalar Heroku CLI `curl https://cli-assets.heroku.com/install.sh | sh`.
+- Login: `heroku login -i`.
+- `heroku create`
+
+### COnfiguracion para deploy
+
+- Se agrega el siguiente escript al package.js donde se especifica la version de node usada
+- /package.json
+
+```
+  "engines": {
+   "node": "16.13.1"
+  }
+```
+
+#### Especificar el puerto de forma dinamica:
+
+- Se modifica la logica en el port que se utiliza:
+- /index.js
+
+```
+const port = process.env.PORT ||3000;
+```
+
+- Se crea el archivo Procfile en la raiz del proyecto.
+  /Procfile
+
+```
+web: npm run start
+
 ```

@@ -4,15 +4,15 @@ const { logErrors, errorHandler, boomHandler } = require('./middlewares/error.ha
 const cors = require('cors');
 
 const myApp = express();
-const port = 3002;
+const port = process.env.PORT ||3000;
 
 myApp.use(express.json());
 
 
-const whiteList = ['http://localhost:3002', 'http://127.0.0.1:5500'];
+const whiteList = ['http://localhost:3000', 'http://127.0.0.1:5500'];
 const options = {
   origin: (origin, callback) => {
-    if (whiteList.includes(origin)) {
+    if (whiteList.includes(origin) || !origin) {
       callback(null , true);
     } else {
      callback(new Error("No permitido") )
@@ -32,6 +32,6 @@ myApp.use(boomHandler);
 myApp.use(errorHandler);
 
 myApp.listen(port, () => {
-  console.log("listen in port: " + port);
+  return "listen in port: " + port
 })
 
