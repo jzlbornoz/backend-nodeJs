@@ -667,11 +667,11 @@ myApp.use(cors(options));
 
 ## Deployment Heroku
 
-- Intalar Heroku CLI `curl https://cli-assets.heroku.com/install.sh | sh`.
+- Instalar Heroku CLI `curl https://cli-assets.heroku.com/install.sh | sh`.
 - Login: `heroku login -i`.
-- `heroku create`
+- crear proyecto: `heroku create`.
 
-### COnfiguracion para deploy
+### Configuracion para deploy
 
 - Se agrega el siguiente escript al package.js donde se especifica la version de node usada
 - /package.json
@@ -698,3 +698,7 @@ const port = process.env.PORT ||3000;
 web: npm run start
 
 ```
+
+### DEPLOY
+
+- `git push heroku master\main.`
