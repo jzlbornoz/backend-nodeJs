@@ -702,3 +702,68 @@ web: npm run start
 ### DEPLOY
 
 - `git push heroku master\main.`
+
+# Base de datos con PostgresSQL
+
+## Instalacion Docker
+
+- Estos son los pasos para instalarlo dentro de Ubuntu sin embargo también puedes ver directamente https://docs.docker.com/engine/install/ubuntu/
+
+- `sudo apt-get install \ apt-transport-https \ ca-certificates \ curl \ gnupg \ lsb-release`
+- `sudo apt-get install \ apt-transport-https \ ca-certificates \ curl \ gnupg \ lsb-release`
+- `curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg`
+- `echo \ "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \ $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null`
+- `sudo apt-get update sudo apt-get install docker-ce docker-ce-cli containerd.io`
+- `sudo groupadd docker sudo usermod -aG docker $USER`
+
+### Install Docker compose
+
+- `sudo curl -L "https://github.com/docker/compose/releases/download/1.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
+- `sudo chmod +x /usr/local/bin/docker-compose`
+
+## Configuración de Postgres en Docker
+
+- Documentacion oficial: https://hub.docker.com/_/postgres
+- Se crea el archivo `docker-compose.yml` en la raiz del proyecto y se agrega la siguiente configuracion.
+- /docker-compose.yml
+
+```
+version: '3.3'
+
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=YourStore
+      - POSTGRES_USER=jzlbornoz
+      - POSTGRES_PASSWORD=fatima17
+    ports:
+      -5432:5432
+
+```
+
+- Se levanta el contenedor que corre a Postgress: `sudo docker-compose up -d postgres-db`.
+- Inspeccionar: `sudo docker-compose ps`
+- Cancelar Proceso: `sudo docker-compose down`
+
+### Persistencia de Datos: Volumes
+
+- Se crea el directorio `postgres_data` en donde van a vivir los datos
+- Se agrega la siguinete configuracion a `docker-compose.yml`.
+- /docker-compose.yml
+
+```
+version: '3.3'
+
+services:
+  postgres-db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=YourStore
+      - POSTGRES_USER=jzlbornoz
+      - POSTGRES_PASSWORD=fatima17
+    ports:
+      - 5432:5432
+    volumes:
+      -./postgres_data:/var/lib/postgresql/data
+```
