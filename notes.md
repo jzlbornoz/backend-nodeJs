@@ -828,12 +828,63 @@ async function getConnection() {
 module.exports = getConnection;
 
 ```
+
 - En el user services se agrega la logica utilizando el getConnection().
 - /services/users.services.js
+
 ```
 async getUsers() {
     const client = await getConnection();
     const rta = await client.query('SELECT * FROM task');
     return rta.rows;
   }
+```
+
+## Manejo del Pool de conexiones
+
+- Se crea el modulo en el direcotio libs.
+- /libs/postgres.pool.js
+
+```
+const { Pool } = require('pg');
+
+  const pool = new Pool({
+    host: 'localhost',
+    port: 5432,
+    user: 'jzlbornoz',
+    password: 'fatima17',
+    database: 'YourStore'
+  });
+
+module.exports = pool;
+
+```
+
+- Se agrega la logica al servicio del products
+- /services/products.services.js
+
+```
+const { faker } = require('@faker-js/faker');
+const boom = require('@hapi/boom');
+const pool = require('../libs/postgres.pool');
+
+class ProductsServices {
+  constructor() {
+    this.products = [];
+    this.generate();
+    this.pool = pool;
+    this.pool.on('error', (error) => console.log(error));
+  }
+  ....
+  ....
+  ....
+  ....
+    async find() {
+    const query = "SELECT * FROM task";
+    const rta = await this.pool.query(query);
+    return rta.rows;
+  }
+  ....
+  ...
+  ..
 ```
