@@ -767,3 +767,35 @@ services:
     volumes:
       -./postgres_data:/var/lib/postgresql/data
 ```
+
+### Interfas grafica para PostgreSql
+
+- Se agrega en el `docker-compose.yml`
+- /docker-compose.yml
+
+```
+ pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_MAIL=admin@mail.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    ports:
+      - 5050:80
+
+```
+
+- `docker-compose up -d pgadmin` para abrir la instancia de la interfaz en el navegador.
+- Se crea el server por la interfaz.
+  - HostName/ Address: Nombre del servicio en este caso: `postgres-db`
+  - Maintenance data base: POSTGRES_DB= en este caso: YourStore
+  - Username: POSTGRES_USER= en este caso: jzlbornoz
+  - Password: POSTGRES_PASSWORD= en este caso: fatima17
+- Se crea la primera tabla, con la queryTool:
+
+```
+CREATE TABLE task (
+	id serial PRIMARY KEY,
+	title VARCHAR ( 250 ) NOT NULL,
+	completed boolean DEFAULT false
+);
+```
