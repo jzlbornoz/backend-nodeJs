@@ -888,3 +888,54 @@ class ProductsServices {
   ...
   ..
 ```
+
+## Variables de ambiente en Node.js
+
+- Se crea el directorio config y se agregan las variables.
+- /config/config.js`
+
+```
+const config = {
+	env: process.env.NODE_ENV || 'dev',
+	port: process.env.PORT || 3000,
+	dbUser: process.env.DB_USER,
+	dbPassword: process.env.DB_PASSWORD,
+	dbHost: process.env.DB_HOST,
+	dbPort: process.env.DB_PORT,
+	dbName: process.env.DB_NAME,
+};
+
+module.exports = { config };
+```
+
+- Se exporta a 'postgres.pool.js'.
+- /libs/postgres.pool.js
+
+```
+const { Pool } = require('pg');
+const { config } = require('../config/config');
+
+const USER = encodeURIComponent(config.dbUser);
+const PASSWORD = encodeURIComponent(config.dbPassword);
+const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`;
+
+const pool = new Pool({ connectionString: URI });
+
+module.exports = pool;
+```
+- Se crea el archivo .env en la raiz del proyecto.
+- /.env
+```
+// Datos de ejemplo
+PORT = 3000
+DB_USER='juan'
+DB_PASSWORD='admin123'
+DB_HOST='localhost'
+DB_NAME='my_store'
+DB_PORT='5432'
+```
+- se instala `npm i dotenv` para poder leer las .env
+- /config/config.js
+```
+require('dotenv').config();
+```
