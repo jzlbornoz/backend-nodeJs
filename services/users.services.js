@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
+const getConnection = require('../libs/postgres');
 
 
 class usersService {
@@ -16,8 +17,10 @@ class usersService {
       id: faker.datatype.uuid(),
     })
   }
-  getUsers() {
-    return this.users;
+  async getUsers() {
+    const client = await getConnection();
+    const rta = await client.query('SELECT * FROM task');
+    return rta.rows;
   }
   getUser(id) {
     const user = this.users.find(item => item.id === id);

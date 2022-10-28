@@ -799,3 +799,41 @@ CREATE TABLE task (
 	completed boolean DEFAULT false
 );
 ```
+
+- `psql -h localhost -d YourStore -U jzlbornoz` logear por terminal.
+
+## Integración de node-postgres
+
+- Se instala la dependencia `npm install pg`.
+- Se crea el directorio 'libs' en la raiz del proyecto en donde va a vivir la conexion a postgres.
+- /libs/postgres.js
+
+```
+const { Client } = require('pg');
+
+async function getConnection() {
+  const client = new Client({
+    host: 'localhost',
+    port: 5432,
+    user: 'jzlbornoz',
+    password: 'fatima17',
+    database: 'YourStore'
+  });
+
+  await client.connect();
+  console.log(client);
+  return client
+}
+
+module.exports = getConnection;
+
+```
+- En el user services se agrega la logica utilizando el getConnection().
+- /services/users.services.js
+```
+async getUsers() {
+    const client = await getConnection();
+    const rta = await client.query('SELECT * FROM task');
+    return rta.rows;
+  }
+```
