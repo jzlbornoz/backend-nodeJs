@@ -923,8 +923,10 @@ const pool = new Pool({ connectionString: URI });
 
 module.exports = pool;
 ```
+
 - Se crea el archivo .env en la raiz del proyecto.
 - /.env
+
 ```
 // Datos de ejemplo
 PORT = 3000
@@ -934,8 +936,72 @@ DB_HOST='localhost'
 DB_NAME='my_store'
 DB_PORT='5432'
 ```
+
 - se instala `npm i dotenv` para poder leer las .env
 - /config/config.js
+
 ```
 require('dotenv').config();
+```
+
+## ORM: Instalación y configuración de Sequelize ORM
+
+- ORM: Object Relational Mapping es un modelo de programación que permite mapear las estructuras de una base de datos relacionales.
+- Los beneficios son los siguientes:
+  Acciones como CRUD (Create, Read, Update, Delete) son administradas mediante ORM.
+  La implementación de seeds o semillas, nos permiten recuperar, mediante código, la estructura de una BD.
+- `npm install --save sequelize`
+- `npm install --save pg-hstore`
+- Se crea el archivo de configuracion 'sequelize' en el directorio /libs y se agrega la siguiente configuracion:
+
+```
+const { Sequelize } = require('sequelize');
+
+const { config } = require('../config/config');
+
+const USER = encodeURIComponent(config.dbUser);
+const PASSWORD = encodeURIComponent(config.dbPassword);
+const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`;
+
+const sequelize = new Sequelize(URI , {
+  dialect: 'postgres',
+  logging: true
+});
+
+module.exports = sequelize;
+```
+- Se agrega la configuracion al servicio de products:
+- /services/product.services.js
+```
+const { faker } = require('@faker-js/faker');
+const boom = require('@hapi/boom');
+const sequelize = require('../libs/sequelize');
+class ProductsServices {
+  constructor() {
+    this.products = [];
+    this.generate();
+  }
+
+  async generate() {
+    const limit = 50;
+    for (let i = 0; i < limit; i++) {
+      this.products.push({
+        name: faker.commerce.productName(),
+        price: parseInt(faker.commerce.price(), 10),
+        imaga: faker.image.imageUrl(),
+        id: faker.datatype.uuid(),
+        isBlock: faker.datatype.boolean(),
+      })
+    }
+    ....
+    ...
+    ..
+    .
+     async find() {
+    const query = "SELECT * FROM task";
+    const [data] = await sequelize.query(query);
+    return {
+      data
+    };
+  }
 ```
