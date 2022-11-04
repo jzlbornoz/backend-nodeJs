@@ -970,8 +970,10 @@ const sequelize = new Sequelize(URI , {
 
 module.exports = sequelize;
 ```
+
 - Se agrega la configuracion al servicio de products:
 - /services/product.services.js
+
 ```
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
@@ -1003,5 +1005,102 @@ class ProductsServices {
     return {
       data
     };
+  }
+```
+
+## Modelo Sequelize
+
+- Este es el esquema de la base de datos como tal.
+- Se crea el directorio de la base de datos 'db' en el que va a contener los archivos modelos en su propio directorio dentro de 'db'.
+- /db/model/user.model.js
+
+```
+const {Model , DataTypes , Sequelize} = require('sequelize');
+
+const USERS_TABLE = 'users';
+
+const userSchema = {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: DataTypes.INTEGER
+  },
+  email: {
+    allowNull: false,
+    type: DataTypes.STRING,
+    unique: true,
+  },
+  password: {
+    allowNull: false,
+    type: DataTypes.STRING
+  },
+  createdAt: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    field: 'create_at',
+    defaultValue: Sequelize.NOW
+  }
+}
+
+class User extends Model {
+  static associate() {
+    //
+  }
+  static config(sequelize){
+    return {
+      sequelize,
+      tableName: USERS_TABLE,
+      modelName: 'User',
+      timestamps: false
+    }
+  }
+}
+
+module.exports = {USERS_TABLE , userSchema, User }
+
+```
+
+- /db/models/index.js
+
+```
+const {User, userSchema} = require('./user.model');
+
+function setUpModel(sequelize) {
+  User.init(userSchema , User.config(sequelize));
+}
+
+module.exports = setUpModel;
+
+```
+
+- /libs/sequelize.js
+
+```
+const { Sequelize } = require('sequelize');
+
+const { config } = require('../config/config');
+const  setUpModel = require('../db/models');
+
+const USER = encodeURIComponent(config.dbUser);
+const PASSWORD = encodeURIComponent(config.dbPassword);
+const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`;
+
+const sequelize = new Sequelize(URI , {
+  dialect: 'postgres',
+  logging: true
+});
+
+setUpModel(sequelize);
+
+module.exports = sequelize;
+```
+- /services/users.services.js
+```
+  const { models } = require('../libs/sequelize');
+  
+async getUsers() {
+    const rta = await models.User.findAll();
+    return rta;
   }
 ```
