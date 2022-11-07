@@ -7,9 +7,13 @@ const router = express.Router();
 const service = new usersService();
 
 // GET users
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
+try {
   const users = await service.getUsers();
   res.status(200).json(users);
+} catch (error) {
+  next(error);
+}
 })
 
 // GET user by id
@@ -73,8 +77,8 @@ router.delete('/:id',
   async (req, res, next) => {
     try {
       const { id } = req.params;
-      const userDeleted = service.deleteUser(id);
-      res.status(200).json(userDeleted);
+      const userDeleted = await service.deleteUser(id);
+      res.status(201).json({userDeleted});
     } catch (error) {
       next(error);
     }

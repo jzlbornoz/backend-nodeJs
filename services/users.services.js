@@ -1,62 +1,34 @@
-const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 
 
 class usersService {
-  constructor() {
-    this.users = [];
-    this.generate();
+  constructor() {}
 
-  }
-  generate() {
-    this.users.push({
-      name: "admin",
-      age: 18,
-      nacionality: "Venezuela",
-      id: faker.datatype.uuid(),
-    })
-  }
   async getUsers() {
     const rta = await models.User.findAll();
     return rta;
   }
-  getUser(id) {
-    const user = this.users.find(item => item.id === id);
+  async getUser(id) {
+   const user = await models.User.findByPk(id);
     if (!user) {
       throw boom.notFound("User do not Exist");
     }
     return user;
   }
-  createUser(data) {
-    const newUser = {
-      ...data,
-      id: faker.datatype.uuid(),
-    }
-    this.users.push(newUser);
+  async createUser(data) {
+    const newUser = await models.User.create(data);
     return newUser;
   }
-  updateUser(id, update) {
-    const index = this.users.findIndex(item => item.id === id);
-    if (index === -1) {
-      throw boom.notFound("User do not Exist");
-    }
-    const userToUpdate = this.users[index];
-    this.users[index] = {
-      ...userToUpdate,
-      ...update,
-    }
-    return this.users[index];
+  async updateUser(id, update) {
+    const user = await this.getUser(id);
+    const rta = await user.update(update);
+    return rta;
   }
-  deleteUser(id) {
-    const index = this.users.findIndex(item => item.id === id);
-    if (index === -1) {
-      throw boom.notFound("User do not Exist");
-    }
-    this.users.splice(index, 1);
-    return {
-      message: `User: ${id} deleted`
-    }
+  async deleteUser(id) {
+    const user = await this.getUser(id);
+    await user.destroy();
+    return {id};
   }
 }
 
