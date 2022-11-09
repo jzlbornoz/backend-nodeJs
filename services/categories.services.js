@@ -1,58 +1,30 @@
-const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
+const { models } = require('../libs/sequelize');
 
 class CategoriesServices {
-  constructor() {
-    this.categories = [];
-    this.generate();
-  }
-
-  generate() {
-    this.categories.push(
-      {
-        name: 'shoes',
-        id: faker.datatype.uuid(),
-      },
-      {
-        name: 'clothes',
-        id: faker.datatype.uuid(),
-      },
-      {
-        name: 'tech',
-        id: faker.datatype.uuid(),
-      }
-    );
-  }
+  constructor() {}
 
   async find() {
-    return this.categories;
+    const rta = await models.Categorie.findAll();
+    return rta;
   }
 
   async create(data) {
-    const newCategorie = {
-      ...data,
-      id: faker.datatype.uuid(),
-    };
-    this.categories.push(newCategorie);
+    const newCategorie = await models.Categorie.create(data);
     return newCategorie;
   }
   async findCategorie(id) {
-    const categorie = this.categories.find((item) => item.id === id);
+    const categorie = await models.Categorie.findByPk(id);
     if (!categorie) {
-      throw boom.notFound("Categorie Not Found")
+      throw boom.notFound("Categorie Not Found");
     }
     return categorie;
   }
   async delete(id) {
-    const index = this.categories.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw boom.notFound('Product Not Found');
-    } else {
-      this.categories.splice(index, 1);
-      return {
-        message: `Categorie ${id} deleted`,
-      };
-    }
+    const categorie = await this.findCategorie(id);
+    await categorie.destroy();
+    return { id };
+
   }
 }
 
