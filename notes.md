@@ -1180,4 +1180,29 @@ myApp.use(ormErrorHandler);
 
 ## Cambiando la base de datos a MySql
 
--
+- Se agregan los servicios de mysql y phpmyadmin en el docker-compose:
+- /docker-compose.yml
+
+```
+mysql-db:
+    image: mysql:5
+    environment:
+      - MYSQL_DATABASE=YourStore
+      - MYSQL_USER=jzlbornoz
+      - MYSQL_ROOT_PASSWORD=fatima17
+      - MYSQL_PORT=3306
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - MYSQL_ROOT_PASSWORD=fatima17
+      - PMA_HOST=mysql-db
+    ports:
+      - 8080:80
+
+```
+- `npm i --save mysql2`
+- Para cambiar de motor de db se tiene que modificar el .env y el dialect en /libs/sequelize.js
