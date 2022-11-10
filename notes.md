@@ -1149,3 +1149,35 @@ class usersService {
 
 module.exports = usersService;
 ```
+
+- Se agrega un middleware para la captura de los errores de sequelize:
+- /middlewares/error.handler.js
+
+```
+const { ValidationError } = require("sequelize");
+.....
+....
+...
+..
+.
+function ormErrorHandler(err, req, res, next) {
+  if (err instanceof ValidationError) {
+    res.status(409).json({
+      statusCode: 409,
+      massage: err.name,
+      errors: err.errors
+    })
+  }
+  next(err);
+}
+```
+
+- /index
+
+```
+myApp.use(ormErrorHandler);
+```
+
+## Cambiando la base de datos a MySql
+
+-
