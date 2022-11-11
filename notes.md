@@ -1204,5 +1204,102 @@ mysql-db:
       - 8080:80
 
 ```
+
 - `npm i --save mysql2`
 - Para cambiar de motor de db se tiene que modificar el .env y el dialect en /libs/sequelize.js
+
+## Migraciones
+
+- Django: Las migraciones son la forma en que Django propaga cambios en los modelos y los refleja en el esquema de bases de datos.
+- Laravel: Las migraciones son como un sistema de control de versiones para la base de datos.
+- Sequelize: Es como un sistema de control de versiones para manejar los cambios desde el código y trackear los cambios en la base de datos.
+
+## Migraciones en Sequelize ORM
+
+- Actualmente la creacion de las tablas se hace mediante al sequelize.sync() en '/libs/sequelize.js', esta funcion lee los modelos para posteriormente crear las tablas, por esa razon no es aconsejable utilizarla en produccion, lo recomendable al correr migraciones es lo siguiente:
+
+  - `npm i sequelize-cli -D`
+  - Se agrega el archivo de configuracion:
+  - /.sequelizerc
+
+  ```
+  module.exports = {
+  'config': './db/config.js',
+  'models-paths': './db/models',
+  'migrations-paths': './db/migrations',
+  'seeders-path': './db/seeders',
+  }
+  ```
+
+  - Se crean los directorios de dicha configuracion y el archivo en si.
+  - /db/config.js
+
+  ```
+  const { config } = require('../config/config');
+  const USER = encodeURIComponent(config.dbUser);
+  const PASSWORD = encodeURIComponent(config.dbPassword);
+  const URI = `postgres://${USER}:${PASSWORD}@${config.dbHost}:${config.dbPort}/${config.dbName}`;
+  module.exports = {
+  development: {
+  url: URI,
+  dialect: 'postgres'
+  },
+  production: {
+  url: URI,
+  dialect: 'postgres'
+  },
+  }
+  ```
+
+## Configurando y corriendo migraciones con npm scripts
+
+- Se crean los scripts para llevar a cabo las tareas:
+- /package.json
+
+```
+"scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrations:generate": "sequelize-cli migration:generate --name"
+  },
+
+```
+
+- Al correr `npm run migrations:generate create-user` se creara un archivo en el directorio asignado '/db/migrations/ donde tiene una pieza de codigo que recibira indicaciones para la migracion'.
+- Se elimina el `sequelize.sync();` en '/libs/sequelize.js.
+- /db/migrations/timestamp-create-users.js
+
+```
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+
+const { USERS_TABLE, userSchema } = require('../models/user.model')
+
+module.exports = {
+  async up(queryInterface) {
+    await queryInterface.createTable(USERS_TABLE, userSchema);
+  },
+
+  async down(queryInterface,) {
+    await queryInterface.drop(USERS_TABLE);
+  }
+};
+
+```
+
+- Se agregan el resto de scritps al package.json
+
+```
+"scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrations:generate": "sequelize-cli migration:generate --name",
+    "migrations:run": "sequelize-cli db:migrate",
+    "migrations:revert": "sequelize-cle db:migrate:undo",
+    "migrations:delete": "sequelize-cle db:migrate:undo:all"
+  },
+```
+- Para poder correr la migracion  se eliminan todas las tablas antiguas, posteriormente en consola se corre `npm run migration:run`
