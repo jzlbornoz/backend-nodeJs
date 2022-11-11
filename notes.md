@@ -1303,3 +1303,28 @@ module.exports = {
   },
 ```
 - Para poder correr la migracion  se eliminan todas las tablas antiguas, posteriormente en consola se corre `npm run migration:run`
+
+## Modificaciones de entidades
+- Si se hizo una modificacion a una entidad, es necesario hacer una migracion exclusiva.
+- Se genera la migracion `npm run migrations:generate name(en este caso add-role)` y se agrega la configuracion en el archivo generado.
+- /db/migrations/datestamp-addrole.js
+```
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+
+
+const { USERS_TABLE, userSchema } = require('../models/user.model')
+
+module.exports = {
+  async up(queryInterface) {
+    await queryInterface.addColumn(USERS_TABLE, 'role', userSchema.role);
+  },
+
+  async down(queryInterface) {
+    await queryInterface.removeColumn(USERS_TABLE, 'role');
+  }
+};
+
+```
+
