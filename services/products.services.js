@@ -20,51 +20,32 @@ class ProductsServices {
     }
   }
   async create(data) {
-    const newProduct = {
-      id: faker.datatype.uuid(),
-      ...data
-    }
-    this.products.push(newProduct);
+    const newProduct = await models.Product.create(data);
     return newProduct;
   }
 
   async find() {
-    const  rta = await models.Product.findAll();
+    const rta = await models.Product.findAll();
     return rta;
   }
 
   async findProduct(id) {
-    const product = this.products.find(item => item.id === id);
+    const product = await models.Product.findByPk(id);
     if (!product) {
       throw boom.notFound("Product Not Found");
-    }
-    if (product.isBlock) {
-      throw boom.conflict("Product is Block");
     }
     return product
   }
 
   async update(id, changes) {
-    const index = this.products.findIndex(item => item.id === id);
-    if (index === -1) {
-      throw boom.notFound("Product Not Found");
-    }
-    const product = this.products[index];
-    this.products[index] = {
-      ...product,
-      ...changes
-    }
-    return this.products[index];
+    const product = await this.findProduct(id);
+    const rta = await product.update(changes);
+    return rta;
   }
   async delete(id) {
-    const index = this.products.findIndex(item => item.id === id);
-    if (index === -1) {
-      throw boom.notFound("Product Not Found");;
-    }
-    this.products.splice(index, 1);
-    return {
-      message: `Product ${id} deleted`,
-    }
+    const product = await this.findProduct(id);
+    await product.destroy();
+    return { id }
   }
 }
 
