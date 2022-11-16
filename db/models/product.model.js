@@ -17,6 +17,10 @@ const productsSchema = {
     allowNull: false,
     type: DataTypes.INTEGER,
   },
+  image: {
+    allowNull: false,
+    type: DataTypes.ARRAY
+  },
   soldBy: {
     allowNull: false,
     type: DataTypes.STRING,
