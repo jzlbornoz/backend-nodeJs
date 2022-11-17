@@ -19,7 +19,7 @@ const productsSchema = {
   },
   image: {
     allowNull: false,
-    type: DataTypes.ARRAY
+    type: DataTypes.INTEGER,
   },
   soldBy: {
     allowNull: false,

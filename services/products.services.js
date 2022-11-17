@@ -1,24 +1,8 @@
-const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom');
 const { models } = require('../libs/sequelize');
 class ProductsServices {
-  constructor() {
-    this.products = [];
-    this.generate();
-  }
+  constructor() { }
 
-  async generate() {
-    const limit = 50;
-    for (let i = 0; i < limit; i++) {
-      this.products.push({
-        name: faker.commerce.productName(),
-        price: parseInt(faker.commerce.price(), 10),
-        imaga: faker.image.imageUrl(),
-        id: faker.datatype.uuid(),
-        isBlock: faker.datatype.boolean(),
-      })
-    }
-  }
   async create(data) {
     const newProduct = await models.Product.create(data);
     return newProduct;
