@@ -1,4 +1,5 @@
 const { Model, DataTypes, Sequelize } = require('sequelize');
+const { USERS_TABLE } = require('./user.model');
 
 const COSTUMERS_TABLE = 'costumers';
 
@@ -30,13 +31,25 @@ const costumerSchema = {
     type: DataTypes.DATE,
     field: 'create_at',
     defaultValue: Sequelize.NOW
+  },
+  //FK
+  userId: {
+    field: 'user_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: USERS_TABLE,
+      key: 'id'
+    },
+    onUpdate: 'CASCADE',
+    onDelet: 'SET NULL'
   }
 }
 
 class Costumer extends Model {
   // static permite que los metodos sean llamados sin necesidad de una instancia.
-  static associate() {
-    //
+  static associate(models) {
+    this.belongsTo(models.User, { as: 'user' });
   }
   static config(sequelize) {
     return {
