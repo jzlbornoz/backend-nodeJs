@@ -1418,9 +1418,137 @@ const costumerSchema = {
   }
 }
 ```
+
 - Se hace la migracion.
 - Se modifica el schema de validacion:
 - /schemas/costumer.schema.js
-```
 
 ```
+const createCostumerSchema = Joi.object({
+  name: name.required(),
+  lastName: lastName.required(),
+  phone: phone.required(),
+  userId: userId.required()
+})
+
+const updateCostumerSchema = Joi.object({
+  name: name,
+  lastName: lastName,
+  phone: phone,
+  userId: userId,
+})
+
+```
+
+### Resolviendo la Relacion
+
+- Se agrega que la fk sea unica en el costumers.model.js
+
+```
+//FK
+  userId: {
+    field: 'user_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    unique: true,
+    references: {
+      model: USERS_TABLE,
+      key: 'id'
+    },
+    onUpdate: 'CASCADE',
+    onDelet: 'SET NULL'
+  }
+```
+
+- Se hace la migracion de los cambios:
+
+```
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+
+const { COSTUMERS_TABLE } = require('../models/costumers.model');
+const { DataTypes } = require('sequelize');
+
+module.exports = {
+  async up(queryInterface) {
+    await queryInterface.changeColumn(COSTUMERS_TABLE, 'user_id', {
+      field: 'user_id',
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      unique: true,
+    });
+  },
+
+  async down(queryInterface,) {
+   // await queryInterface.dropTable(COSTUMERS_TABLE);
+  }
+};
+
+```
+
+- Se hace la respuesta anidada en el servicio
+- /services/costumer.services.js
+
+```
+  async getCostumers() {
+    const rta = await models.Costumer.findAll({
+      include: ['user'] // es el alias que se le pone en la associate del model
+    });
+    return rta;
+  }
+```
+
+- Se requiere que la relacion se bidimencional, es decir que cuando haga el llamado a user venga anidado el costumer.
+- Se agrega el associate en el user.model con el metodo hasOne().
+- db/models/user.model.js
+
+```
+static associate(models) {
+    this.hasOne(models.Costumer, {
+      as: 'costumer',
+      foreignKey: 'user_id'
+    });
+  }
+```
+
+- finalmente se agrega el anidado en el servicio.
+- services/users.service.js
+
+```
+async getUsers() {
+    const rta = await models.User.findAll({
+      include: ['costumer']
+    });
+    return rta;
+  }
+```
+
+- Para hacer que al crear un costumer se cree el usuario en el mismo endpoint se agrega la siguinete configuracion.
+- Se modifica el schema de costumers.
+- schemas/costumers.schema.js
+
+```
+const createCostumerSchema = Joi.object({
+  name: name.required(),
+  lastName: lastName.required(),
+  phone: phone.required(),
+  user: Joi.object({
+    email: email.required(),
+    password: password.required(),
+    age: age.required(),
+    nacionality: nacionality.required(),
+    role: role.required(),
+  })
+})
+```
+- Se resuelve el servicio
+```
+async createCostumer(data) {
+    const newCostumer = await models.Costumer.create(data , {
+      include: ['user']
+    });
+    return newCostumer;
+  }
+```
+

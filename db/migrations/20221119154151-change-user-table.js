@@ -2,7 +2,7 @@
 
 /** @type {import('sequelize-cli').Migration} */
 
-const { USERS_TABLE, userSchema } = require('../models/user.model')
+const { USERS_TABLE, userSchema } = require('../models/user.model');
 
 module.exports = {
   async up(queryInterface) {
@@ -10,6 +10,6 @@ module.exports = {
   },
 
   async down(queryInterface,) {
-    await queryInterface.dropTable(USERS_TABLE);
+   await queryInterface.dropTable(USERS_TABLE);
   }
 };

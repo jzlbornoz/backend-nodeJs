@@ -6,7 +6,9 @@ class costumersService {
   constructor() { }
 
   async getCostumers() {
-    const rta = await models.Costumer.findAll();
+    const rta = await models.Costumer.findAll({
+      include: ['user'] // es el alias que se le pone en la associate del model
+    });
     return rta;
   }
   async getCostumer(id) {
@@ -17,7 +19,9 @@ class costumersService {
     return Costumer;
   }
   async createCostumer(data) {
-    const newCostumer = await models.Costumer.create(data);
+    const newCostumer = await models.Costumer.create(data , {
+      include: ['user']
+    });
     return newCostumer;
   }
   async updateCostumer(id, update) {
