@@ -9,7 +9,9 @@ class ProductsServices {
   }
 
   async find() {
-    const rta = await models.Product.findAll();
+    const rta = await models.Product.findAll({
+      include: ['category'] // es el nombre que se le pone en el associate del model {as: 'category}
+    });
     return rta;
   }
 

@@ -14,7 +14,9 @@ class CategoriesServices {
     return newCategorie;
   }
   async findCategorie(id) {
-    const categorie = await models.Categorie.findByPk(id);
+    const categorie = await models.Categorie.findByPk(id , {
+      include: ['products'] // es el nombre que se le pone en el associate del model {as: 'products'}
+    });
     if (!categorie) {
       throw boom.notFound("Categorie Not Found");
     }

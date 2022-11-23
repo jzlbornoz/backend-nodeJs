@@ -1573,19 +1573,21 @@ async createCostumer(data) {
     onUpdate: 'CASCADE',
     onDelet: 'SET NULL'
   }
- /////
-  class Product extends Model {
-  static associate(models) {
-    this.belongsTo(models.Category, { as: 'category' })
-  }
-  static config(sequelize) {
-    return {
-      sequelize,
-      tableName: PRODUCTS_TABLE,
-      modelName: 'Product',
-      timestamps: false
-    }
-  }
+```
+
+```
+ class Product extends Model {
+ static associate(models) {
+   this.belongsTo(models.Categorie, { as: 'category' })
+ }
+ static config(sequelize) {
+   return {
+     sequelize,
+     tableName: PRODUCTS_TABLE,
+     modelName: 'Product',
+     timestamps: false
+   }
+ }
 }
 ```
 
@@ -1610,4 +1612,33 @@ class Categorie extends Model {
   }
 }
 ```
+
 - Se corre la migracion con la nueva configuracion de las tablas.
+
+### Resolviendo Relacion 1-N
+
+- Se agrega el include en cada servicio deseado.
+- /services/products.services.js
+
+```
+async find() {
+    const rta = await models.Product.findAll({
+      include: ['category'] // es el nombre que se le pone en el associate del model {as: 'category}
+    });
+    return rta;
+  }
+```
+
+- /services/categories.services.js
+
+```
+  async findCategorie(id) {
+    const categorie = await models.Categorie.findByPk(id , {
+      include: ['products'] // es el nombre que se le pone en el associate del model {as: 'products'}
+    });
+    if (!categorie) {
+      throw boom.notFound("Categorie Not Found");
+    }
+    return categorie;
+  }
+```
