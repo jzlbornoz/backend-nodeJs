@@ -12,12 +12,16 @@ const categorieSchema = {
   name: {
     allowNull: false,
     type: DataTypes.STRING,
+    unique: true,
   }
 }
 
 class Categorie extends Model {
-  static associate (){
-    ///
+  static associate(models) {
+    this.hasMany(models.Product, {
+      as: 'products',
+      foreignKey: 'categoryId'
+    });
   }
   static config(sequelize) {
     return {
@@ -29,4 +33,4 @@ class Categorie extends Model {
   }
 }
 
-module.exports = {CATEGORIES_TABLE , categorieSchema, Categorie}
+module.exports = { CATEGORIES_TABLE, categorieSchema, Categorie }

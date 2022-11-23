@@ -1542,7 +1542,9 @@ const createCostumerSchema = Joi.object({
   })
 })
 ```
+
 - Se resuelve el servicio
+
 ```
 async createCostumer(data) {
     const newCostumer = await models.Costumer.create(data , {
@@ -1552,3 +1554,60 @@ async createCostumer(data) {
   }
 ```
 
+## Relaciones 1-N
+
+- Sequelize proporciona un metodo en el cual se puede trabajar dicha relacion "hasMany".
+- Se agrega la FK y la relacion en el modelo de products
+- db/models/products.model.js
+
+```
+//FK
+   categoryId: {
+    field: 'category_id',
+    allowNull: false,
+    type: DataTypes.INTEGER,
+    references: {
+      model: CATEGORIES_TABLE,
+      key: 'id'
+    },
+    onUpdate: 'CASCADE',
+    onDelet: 'SET NULL'
+  }
+ /////
+  class Product extends Model {
+  static associate(models) {
+    this.belongsTo(models.Category, { as: 'category' })
+  }
+  static config(sequelize) {
+    return {
+      sequelize,
+      tableName: PRODUCTS_TABLE,
+      modelName: 'Product',
+      timestamps: false
+    }
+  }
+}
+```
+
+- Se agre la associate en el modelo Categorie.
+- db/models/categories.model.js
+
+```
+class Categorie extends Model {
+  static associate(models) {
+    this.hasMany(models.Product, {
+      as: 'products',
+      foreignKey: 'categoryId'
+    });
+  }
+  static config(sequelize) {
+    return {
+      sequelize,
+      tableName: CATEGORIES_TABLE,
+      modelName: 'Categorie',
+      timestamps: false
+    }
+  }
+}
+```
+- Se corre la migracion con la nueva configuracion de las tablas.
