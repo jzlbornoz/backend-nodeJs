@@ -1847,3 +1847,67 @@ module.exports = {
 	createOrderSchema
 }
 ```
+
+## Relaciones N-N
+- Cuando se tiene este tipo de relaciones se aconseja usar una tabla pivote o tabla Join (Tabla ternaria), sequelize proporciona el metodo 'belongsToMany' para resolver esta relaciones.
+- Se crea la tabla ternaria "order-product".
+- db/models/order-product.model.js
+```
+const { DataTypes, Sequelize, Model } = require("sequelize");
+const {COSTUMERS_TABLE} = require("./costumers.model")
+
+const ORDER_TABLE = 'orders';
+
+const OrderSchema = {
+	id: {
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true,
+		type: DataTypes.INTEGER,
+	},
+	costumerId: {
+		field: 'costumer_id',
+		allowNull: false,
+		type: DataTypes.INTEGER,
+		References: {
+			model: COSTUMERS_TABLE,
+			key: 'id',
+		},
+		onUpdate: 'CASCADE',
+		onDelete: 'SET NULL',
+	},
+	createdAt: {
+		allowNull: false,
+		type: DataTypes.DATE,
+		field: 'created_at',
+		defaultValue: Sequelize.NOW,
+	},
+};
+
+class Order extends Model {
+	static associate(models) {
+		this.belongsTo(models.Costumer, {
+			as: 'costumer',
+		});
+    this.belongsToMany(models.Product , {
+      as: 'items',
+      through: models.OrderProduct,
+      foreignKey: 'orderId',
+      otherKey: 'productId'
+    })
+	}
+
+	static config(sequelize) {
+		return {
+			sequelize,
+			tableName: ORDER_TABLE,
+			modelName: 'Order',
+			timestamps: false,
+		};
+	}
+}
+
+module.exports = { Order, OrderSchema, ORDER_TABLE };
+```
+- Se hace el setUp de la tabla de la siguiente manera por ser N-N
+
