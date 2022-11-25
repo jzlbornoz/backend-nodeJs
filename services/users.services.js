@@ -14,7 +14,7 @@ class usersService {
   async getUser(id) {
     const user = await models.User.findByPk(id);
     if (!user) {
-      throw boom.notFound("User do not Exist");
+      throw boom.notFound("User does not Exist");
     }
     return user;
   }

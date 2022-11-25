@@ -1642,3 +1642,208 @@ async find() {
     return categorie;
   }
 ```
+
+## Ordenes de Compra
+
+- Se crea la tabla de Order.
+- db/models/orders.model.js
+
+```
+const { DataTypes, Sequelize, Model } = require("sequelize");
+const {COSTUMERS_TABLE} = require("./costumers.model")
+
+const ORDER_TABLE = 'orders';
+
+const OrderSchema = {
+	id: {
+		allowNull: false,
+		autoIncrement: true,
+		primaryKey: true,
+		type: DataTypes.INTEGER,
+	},
+	customerId: {
+		field: 'customer_id',
+		allowNull: false,
+		type: DataTypes.INTEGER,
+		References: {
+			model: COSTUMERS_TABLE,
+			key: 'id',
+		},
+		onUpdate: 'CASCADE',
+		onDelete: 'SET NULL',
+	},
+	createdAt: {
+		allowNull: false,
+		type: DataTypes.DATE,
+		field: 'created_at',
+		defaultValue: Sequelize.NOW,
+	},
+};
+
+class Order extends Model {
+	static associate(models) {
+		this.belongsTo(models.Customer, {
+			as: 'customer',
+		});
+	}
+
+	static config(sequelize) {
+		return {
+			sequelize,
+			tableName: ORDER_TABLE,
+			modelName: 'Order',
+			timestamps: false,
+		};
+	}
+}
+
+module.exports = { Order, OrderSchema, ORDER_TABLE };
+
+```
+
+- Se agrega la asociacion en el costumer model.
+- db/models/costumers.model.js
+
+```
+class Costumer extends Model {
+  // static permite que los metodos sean llamados sin necesidad de una instancia.
+  static associate(models) {
+    this.belongsTo(models.User, { as: 'user' });
+    this.hasMany(models.Order, {
+      as: 'order',
+      foreignKey: 'costumerId'
+    })
+  }
+  static config(sequelize) {
+    return {
+      sequelize,
+      tableName: COSTUMERS_TABLE,
+      modelName: 'Costumer',
+      timestamps: false
+    }
+  }
+}
+```
+
+- Se hace el setUp de la tabla en el index.js de models para posteriormente correr la migracion.
+- Se crea el router de orders.
+- routes/order.router.js
+
+```
+const express = require('express');
+
+const OrderService = require('../services/order.service');
+const validatorHandler = require('../middlewares/validator.handler');
+const {
+	getOrderSchema,
+	createOrderSchema,
+} = require('../schemas/order.schema');
+
+const router = express.Router();
+const service = new OrderService();
+
+router.get(
+	'/:id',
+	validatorHandler(getOrderSchema, 'params'),
+	async (req, res, next) => {
+		try {
+			const { id } = req.params;
+			const order = await service.findOne(id);
+			res.json(order);
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+router.post(
+	'/',
+	validatorHandler(createOrderSchema, 'body'),
+	async (req, res, next) => {
+		try {
+			const body = req.body;
+			const newOrder = await service.create(body);
+			res.status(201).json({ newOrder });
+		} catch (error) {
+			next(error);
+		}
+	}
+);
+
+module.exports = router;
+```
+
+- Se crea el servicio de ordenes.
+- services/order.services.js
+
+```
+const boom = require('@hapi/boom');
+
+const { models } = require('./../libs/sequelize');
+
+class OrderServices {
+	constructor() {
+	}
+
+	async create(data) {
+		const newOrder = await models.Order.create(data);
+		return newOrder;
+	}
+
+	async find() {
+		return [];
+	}
+
+	async findOne(id) {
+		const order = await models.Order.findByPk(id, {
+			include: [
+				{
+					association: 'costumer',
+					include: ['user'],
+				},
+			],
+		});
+    if(!order) {
+      throw boom.notFound("Order does not exist");
+    }
+		return order;
+	}
+
+	async update(id, changes) {
+		return {
+			id,
+			changes,
+		};
+	}
+
+	async delete(id) {
+		return { id };
+	}
+}
+
+module.exports = OrderServices;
+```
+
+- Se crea el schema de validacion con joi
+- schemas/order.schema.js
+
+```
+const Joi = require('joi');
+
+const id = Joi.number().integer()
+const customerId = Joi.number().integer();
+
+
+const getOrderSchema = Joi.object({
+	id: id.required(),
+})
+
+const createOrderSchema = Joi.object({
+	customerId: customerId.required(),
+});
+
+module.exports = {
+	getOrderSchema,
+	createOrderSchema
+}
+```
