@@ -8,10 +8,16 @@ class ProductsServices {
     return newProduct;
   }
 
-  async find() {
-    const rta = await models.Product.findAll({
-      include: ['category'] // es el nombre que se le pone en el associate del model {as: 'category}
-    });
+  async find(query) {
+    const options = {
+      include: ['category'], // es el nombre que se le pone en el associate del model {as: 'category}
+    }
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const rta = await models.Product.findAll(options);
     return rta;
   }
 

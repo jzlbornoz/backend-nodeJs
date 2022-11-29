@@ -1993,4 +1993,55 @@ async findOne(id) {
     },
   }
 ```
+
 - Al indicar que es de tipo virtual se quiere decir que se ignora para la tabla
+
+## Paginacion
+
+- Se crea el schema de validacion del limit y offset
+- shemas/product.schema.js
+
+```
+
+const queryProductSchema = Joi.object({
+  limit: limit,
+  offset: offset
+})
+```
+
+- Se agrega el schema al routing
+- routes/product.router.js
+
+```
+// GET
+router.get('/',
+  validatorHandler(queryProductSchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const products = await service.find(req.query);
+      res.status(200).json(products);
+    } catch (error) {
+      next(error)
+    }
+  });
+
+```
+
+- Luego se agrega la configuracion al servicio
+- services/product.services.js
+
+```
+
+  async find(query) {
+    const options = {
+      include: ['category'], // es el nombre que se le pone en el associate del model {as: 'category}
+    }
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const rta = await models.Product.findAll(options);
+    return rta;
+  }
+```
