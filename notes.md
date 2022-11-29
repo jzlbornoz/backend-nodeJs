@@ -1849,9 +1849,11 @@ module.exports = {
 ```
 
 ## Relaciones N-N
+
 - Cuando se tiene este tipo de relaciones se aconseja usar una tabla pivote o tabla Join (Tabla ternaria), sequelize proporciona el metodo 'belongsToMany' para resolver esta relaciones.
 - Se crea la tabla ternaria "order-product".
 - db/models/order-product.model.js
+
 ```
 const { DataTypes, Sequelize, Model } = require("sequelize");
 const {COSTUMERS_TABLE} = require("./costumers.model")
@@ -1893,7 +1895,7 @@ class Order extends Model {
       as: 'items',
       through: models.OrderProduct,
       foreignKey: 'orderId',
-      otherKey: 'productId'
+      otherKey: 'productId' // cuenta como el setUp
     })
 	}
 
@@ -1909,5 +1911,86 @@ class Order extends Model {
 
 module.exports = { Order, OrderSchema, ORDER_TABLE };
 ```
+
 - Se hace el setUp de la tabla de la siguiente manera por ser N-N
 
+### Resolviendo relacion N-N
+
+- Una vez hecha la orden de compra se quiere que se le pueda agregar productos a deicha orden.
+- En el eschema se order se agrega el siguiente:
+- schemas/order.schema.js
+
+```
+const addItemSchema = Joi.object({
+  orderId: orderId.required(),
+  productId: productId.required(),
+  amount: amount.required()
+})
+```
+
+- Se crea el servicio 'addItem' en order.service
+- services/order.services.js
+
+```
+  async addItem(data) {
+    const itemToAdd = await models.OrderProduct.create(data);
+    return itemToAdd;
+  }
+```
+
+- Se agrega el routing del servicio en el 'order.router.js'.
+- routes/order.router.js
+
+```
+// add item to order
+router.post(
+  '/add-item',
+  validatorHandler(addItemSchema, 'body'),
+  async (req, res, next) => {
+    try {
+      const body = req.body;
+      const itemAdded = await service.addItem(body);
+      res.status(201).json({ itemAdded });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+```
+
+- Se agrega items en el servicio de findByFk para agregar los productos en el resultado de order
+
+```
+async findOne(id) {
+    const order = await models.Order.findByPk(id, {
+      include: [
+        {
+          association: 'costumer',
+          include: ['user'],
+
+        },
+        'items'
+      ],
+    });
+```
+
+### Generacion de datos calculados con sequelize
+
+- Se agrega la siguiente configuracion al order schema del model
+- db/models/orders.model.js
+
+```
+ total: {
+    type: DataTypes.VIRTUAL,
+    get() {
+      if (this.items.length > 0) { // this.items porque asi llamamos la relacion.
+        return this.items.reduce((total, item) => (
+          total + (item.price * item.OrderProduct.amount)
+        ), 0);
+      }
+      return 0
+    },
+  }
+```
+- Al indicar que es de tipo virtual se quiere decir que se ignora para la tabla
