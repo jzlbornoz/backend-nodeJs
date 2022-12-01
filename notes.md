@@ -2045,3 +2045,79 @@ router.get('/',
     return rta;
   }
 ```
+
+## Filtro de precios con operadores
+
+- Sequelize brinda la opcion de operators para este tipo de filtro.
+- Se agrega la configuracion del filtro en el servicio;
+- services/products.services.js
+
+```
+  async find(query) {
+    const options = {
+      include: ['category'], // es el nombre que se le pone en el associate del model {as: 'category}
+      where: {}
+    }
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const { price } = query
+    if (price) {
+      options.where.price = price;
+    }
+    const rta = await models.Product.findAll(options);
+    return rta;
+  }
+```
+
+- Para hacer un filtro por rango se agrega la siguiente configuracion al product schema
+- /schemas/product.schema.js
+
+```
+const price_min = Joi.number().integer();
+const price_max = Joi.number().integer();
+
+const queryProductSchema = Joi.object({
+  limit: limit,
+  offset: offset,
+  price: price,
+  price_min: price_min,
+  price_max: price_max.when('price_min', {
+    is: Joi.number().integer().required(),
+    then: Joi.required()
+  })
+})
+```
+
+- Posteriormente se agrega la configuracion al servicio
+- services/products.services.js
+
+```
+  async find(query) {
+    const options = {
+      include: ['category'], // es el nombre que se le pone en el associate del model {as: 'category}
+      where: {}
+    }
+    const { limit, offset } = query;
+    if (limit && offset) {
+      options.limit = limit;
+      options.offset = offset;
+    }
+    const { price } = query
+    if (price) {
+      options.where.price = price;
+    }
+    const { price_min, price_max } = query
+    if (price_min && price_max) {
+      options.where.price = {
+        [Op.gte]: price_min,
+        [Op.lte]: price_max,
+      };
+    }
+    const rta = await models.Product.findAll(options);
+    return rta;
+  }
+
+```
